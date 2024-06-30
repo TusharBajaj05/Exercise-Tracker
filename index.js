@@ -73,7 +73,7 @@ app.post('/api/users/:_id/exercises', bodyParser.urlencoded({extended: false}), 
   .then(updatedUser => {
     // const exercise = newExercise.save()
     const date = new Date(newExercise.date)
-    res.json({username: updatedUser.username, description: newExercise.description, duration: newExercise.duration, date: date.toDateString(), _id: updatedUser._id})
+    res.json({_id: updatedUser._id, username: updatedUser.username, date: date.toDateString(), duration: newExercise.duration, description: newExercise.description})
   })
   .catch(err => {
     res.json({err})
