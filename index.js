@@ -54,7 +54,7 @@ app.get('/api/users', (req, res) => {
   })
 })
 
-app.post('/api/users/:_id/exercises', bodyParser.urlencoded({extended: false}), (req, res) => {
+app.post('/api/users/:_id/exercises', bodyParser.urlencoded({extended: false}), async (req, res) => {
   
   let newExercise = new Exercise({
     description: req.body.description,
@@ -71,6 +71,8 @@ app.post('/api/users/:_id/exercises', bodyParser.urlencoded({extended: false}), 
     {new: true}
   )
   .then(updatedUser => {
+    // const exercise = newExercise.save()
+    console.log(exercise)
     res.json({_id: updatedUser._id, username: updatedUser.username, date: new Date(newExercise.date).toDateString(), description: updatedUser.description, duration: updatedUser.duration})
   })
   .catch(err => {
@@ -110,8 +112,9 @@ app.get('/api/users/:_id/logs', (req, res) => {
       responseObject.log = responseObject.log.slice(0, req.query.limit)
     }
 
-    responseObject["count"] = result.log.length
-    res.json(responseObject)
+    // responseObject["count"] = result.log.length
+    let log = responseObject.log
+    res.json({username: responseObject.username, count: result.log.length, _id: responseObject.id, log})
   })
 })
 
