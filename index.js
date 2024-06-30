@@ -72,7 +72,6 @@ app.post('/api/users/:_id/exercises', bodyParser.urlencoded({extended: false}), 
   )
   .then(updatedUser => {
     // const exercise = newExercise.save()
-    console.log(exercise)
     res.json({_id: updatedUser._id, username: updatedUser.username, date: new Date(newExercise.date).toDateString(), description: updatedUser.description, duration: updatedUser.duration})
   })
   .catch(err => {
@@ -83,7 +82,6 @@ app.post('/api/users/:_id/exercises', bodyParser.urlencoded({extended: false}), 
 app.get('/api/users/:_id/logs', (req, res) => {
   User.findById(req.params._id)
   .then(result => {
-    // console.log(result.log.length)
     let responseObject = result
 
     if(req.query.from || req.query.to) {
@@ -112,8 +110,14 @@ app.get('/api/users/:_id/logs', (req, res) => {
       responseObject.log = responseObject.log.slice(0, req.query.limit)
     }
 
-    // responseObject["count"] = result.log.length
-    let log = responseObject.log
+    
+
+    let log = responseObject.log.map(e => ({
+      description: e.description,
+      duration: e.duration,
+      date: e.date
+    }))
+  
     res.json({username: responseObject.username, count: result.log.length, _id: responseObject.id, log})
   })
 })
