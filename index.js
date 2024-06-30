@@ -93,7 +93,7 @@ app.get('/api/users/:_id/logs', (req, res) => {
       }
 
       if(req.query.to) {
-        fromDate = new Date(req.query.to)
+        toDate = new Date(req.query.to)
       }
 
       fromDate = fromDate.getTime()
@@ -115,10 +115,10 @@ app.get('/api/users/:_id/logs', (req, res) => {
     let log = responseObject.log.map(e => ({
       description: e.description,
       duration: e.duration,
-      date: e.date
+      date: new Date(e.date).toDateString()
     }))
   
-    res.json({username: responseObject.username, count: result.log.length, _id: responseObject.id, log})
+    res.json({_id: responseObject.id, username: responseObject.username, count: result.log.length, log})
   })
 })
 
