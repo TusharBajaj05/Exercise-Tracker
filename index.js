@@ -19,7 +19,7 @@ const uri =
 const mongoose = require("mongoose");
 mongoose.connect(uri, { /*useNewUrlParser: true, useUnifiedTopology: true */});
 
-let sessionSchema = new mongoose.Schema({
+let ExerciseSchema = new mongoose.Schema({
   description: {type: String, required: true},
   duration: {type: Number, required: true},
   date: String,
@@ -27,10 +27,10 @@ let sessionSchema = new mongoose.Schema({
 
 let UserSchema = new mongoose.Schema({
   username: {type: String, required: true},
-  log: [sessionSchema],
+  log: [ExerciseSchema],
 })
 
-let Session = mongoose.model('Session', sessionSchema)
+let Exercise = mongoose.model('Exercise', ExerciseSchema)
 let User = mongoose.model('User', UserSchema)
 
 app.post('/api/users', bodyParser.urlencoded({extended: false}), (req, res) => {
@@ -56,22 +56,22 @@ app.get('/api/users', (req, res) => {
 
 app.post('/api/users/:_id/exercises', bodyParser.urlencoded({extended: false}), (req, res) => {
   
-  let newSession = new Session({
+  let newExercise = new Exercise({
     description: req.body.description,
     duration: parseInt(req.body.duration),
     date: req.body.date,
   })
 
-  if(newSession.date === '') {
-    newSession.date = new Date().toISOString().substring(0,10)
+  if(newExercise.date === '') {
+    newExercise.date = new Date().toISOString().substring(0,10)
   }
   User.findByIdAndUpdate(
     req.params._id,
-    {$push: {log: newSession}},
+    {$push: {log: newExercise}},
     {new: true}
   )
   .then(updatedUser => {
-    res.json({_id: updatedUser._id, username: updatedUser.username, date: new Date(newSession.date).toDateString(), description: updatedUser.description, duration: updatedUser.duration})
+    res.json({_id: updatedUser._id, username: updatedUser.username, date: new Date(newExercise.date).toDateString(), description: updatedUser.description, duration: updatedUser.duration})
   })
   .catch(err => {
     res.json({err})
@@ -81,6 +81,7 @@ app.post('/api/users/:_id/exercises', bodyParser.urlencoded({extended: false}), 
 app.get('/api/users/:_id/logs', (req, res) => {
   User.findById(req.params._id)
   .then(result => {
+    // console.log(result.log.length)
     let responseObject = result
 
     if(req.query.from || req.query.to) {
@@ -98,10 +99,10 @@ app.get('/api/users/:_id/logs', (req, res) => {
       fromDate = fromDate.getTime()
       toDate = toDate.getTime()
 
-      responseObject.log = responseObject.log.filter((Session) => {
-        let sessionDate = new Date(Session.date).getTime()
+      responseObject.log = responseObject.log.filter((Exercise) => {
+        let ExerciseDate = new Date(Exercise.date).getTime()
 
-        return sessionDate >= fromDate && sessionDate <= toDate
+        return ExerciseDate >= fromDate && ExerciseDate <= toDate
       })
     }
 
@@ -109,7 +110,7 @@ app.get('/api/users/:_id/logs', (req, res) => {
       responseObject.log = responseObject.log.slice(0, req.query.limit)
     }
 
-    responseObject['count'] = result.log.length
+    responseObject["count"] = result.log.length
     res.json(responseObject)
   })
 })
